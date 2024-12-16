@@ -35,4 +35,5 @@ build/
 .DS_Store
 
 ### Other ###
-dispatcher/src/main/resources/
+dispatcher/src/main/resources/application.properties
+logs/
