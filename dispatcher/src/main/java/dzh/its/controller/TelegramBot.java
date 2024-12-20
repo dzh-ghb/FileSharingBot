@@ -5,9 +5,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import javax.annotation.PostConstruct;
 
 @Component //аннотация, чтобы Spring создал бин и поместил его в контекст
 @Log4j //аннотация, автоматически под капотом добавляющая функциональность (logger), использование Lombok
@@ -16,6 +17,16 @@ public class TelegramBot extends TelegramLongPollingBot {
     private String botName;
     @Value("${bot.token}")
     private String botToken;
+    private UpdateController updateController;
+
+    public TelegramBot(UpdateController updateController) {
+        this.updateController = updateController;
+    }
+
+    @PostConstruct
+    public void init() { //передача ссылки на бота в UpdateController
+        updateController.registerBot(this);
+    }
 
     @Override
     public String getBotUsername() {
@@ -29,13 +40,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Message originalMessage = update.getMessage();
-        log.debug(originalMessage.getText());
-
-        SendMessage response = new SendMessage();
-        response.setChatId(originalMessage.getChatId());
-        response.setText("DZHITS");
-        sendAnswerMessage(response);
+        updateController.processUpdate(update); //передача апдейта в UpdateController
     }
 
     public void sendAnswerMessage(SendMessage message) {
