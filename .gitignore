@@ -36,4 +36,5 @@ build/
 
 ### Other ###
 dispatcher/src/main/resources/application.properties
+node/src/main/resources/application.properties
 logs/

@@ -76,7 +76,7 @@ public class UpdateController { //для распределения входящ
         setView(sendMessage); //промежуточный метод для проброса ответа в телеграм бот
     }
 
-    private void setView(SendMessage sendMessage) {
+    public void setView(SendMessage sendMessage) {
         telegramBot.sendAnswerMessage(sendMessage);
     }
 }
