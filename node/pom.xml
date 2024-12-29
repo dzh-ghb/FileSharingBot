@@ -38,6 +38,13 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <!--зависимость для возможности тестирования в Spring Boot-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!--зависимость для подключения драйвера PostgreSQL-->
         <dependency>
             <groupId>org.postgresql</groupId>

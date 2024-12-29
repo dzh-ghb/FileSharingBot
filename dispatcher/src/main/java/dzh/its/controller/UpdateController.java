@@ -32,7 +32,7 @@ public class UpdateController { //для распределения входящ
             return; //дальнейшая обработка апдейта производиться не будет
         }
 
-        if (update.getMessage() != null) {
+        if (update.hasMessage()) {
             distributeMessageByType(update); //обработка апдейта по типу входящих данных
         } else {
             log.error("Неподдерживаемый тип сообщения в обновлении: " + update);
@@ -41,11 +41,11 @@ public class UpdateController { //для распределения входящ
 
     private void distributeMessageByType(Update update) { //распределение сообщений в зависимости от типа входящих данных
         Message message = update.getMessage();
-        if (message.getText() != null) {
+        if (message.hasText()) {
             processTextMessage(update);
-        } else if (message.getDocument() != null) {
+        } else if (message.hasDocument()) {
             processDocMessage(update);
-        } else if (message.getPhoto() != null) {
+        } else if (message.hasPhoto()) {
             processPhotoMessage(update);
         } else {
             setUnsupportedMessageTypeView(update);
