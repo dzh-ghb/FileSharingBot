@@ -25,7 +25,7 @@ public class AppUser {
     @CreationTimestamp //добавление текущей даты на момент сохранения в БД
     private LocalDateTime firstLoginDate; //дата первого подключения к боту
 
-    private String userName; //информация из telegram-объект User
+    private String userName; //информация из telegram-объекта User
     private String lastName;
     private String firstName;
 
