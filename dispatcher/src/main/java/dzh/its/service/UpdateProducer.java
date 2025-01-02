@@ -2,6 +2,7 @@ package dzh.its.service;
 
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public interface UpdateProducer { //для передачи апдейтов в RabbitMQ
+//для передачи апдейтов в RabbitMQ
+public interface UpdateProducer {
     void produce(String rabbitQueue, Update update);
 }

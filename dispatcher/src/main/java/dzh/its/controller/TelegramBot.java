@@ -12,7 +12,7 @@ import javax.annotation.PostConstruct;
 
 @Component //аннотация, чтобы Spring создал бин и поместил его в контекст
 @Log4j //аннотация, автоматически под капотом добавляющая функциональность (logger), использование Lombok
-public class TelegramBot extends TelegramLongPollingBot {
+public class TelegramBot extends TelegramLongPollingBot { //класс для взаимодействия с API Telegram
     @Value("${bot.name}") //аннотация, устанавливающая значение переменной ниже из файла со свойствами
     private String botName;
     @Value("${bot.token}")
@@ -40,7 +40,7 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        updateController.processUpdate(update); //передача апдейта в UpdateController
+        updateController.processUpdate(update); //передача апдейта в UpdateController для последующей обработки
     }
 
     public void sendAnswerMessage(SendMessage message) {

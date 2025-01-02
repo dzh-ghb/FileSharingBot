@@ -12,7 +12,7 @@ import static dzh.its.model.RabbitQueue.*;
 
 @Component
 @Log4j
-public class UpdateController { //для распределения входящих сообщений
+public class UpdateController { //для распределения входящих сообщений (из бота)
     private TelegramBot telegramBot;
     private MessageUtils messageUtils;
     private UpdateProducer updateProducer;
@@ -41,19 +41,19 @@ public class UpdateController { //для распределения входящ
 
     private void distributeMessageByType(Update update) { //распределение сообщений в зависимости от типа входящих данных
         Message message = update.getMessage();
-        if (message.hasText()) {
+        if (message.hasText()) { //обработка текстового сообщения
             processTextMessage(update);
-        } else if (message.hasDocument()) {
+        } else if (message.hasDocument()) { //обработка сообщения в виде документа
             processDocMessage(update);
-        } else if (message.hasPhoto()) {
+        } else if (message.hasPhoto()) { //обработка сообщения в виде изображения
             processPhotoMessage(update);
-        } else {
+        } else { //обработка некорректного типа сообщения
             setUnsupportedMessageTypeView(update);
         }
     }
 
     private void processTextMessage(Update update) {
-        updateProducer.produce(TEXT_MESSAGE_UPDATE, update);
+        updateProducer.produce(TEXT_MESSAGE_UPDATE, update); //передача апдейта с текстовым сообщением в соответствующую очередь
     }
 
     private void processDocMessage(Update update) {
@@ -66,17 +66,17 @@ public class UpdateController { //для распределения входящ
         setFileIsReceivedView(update);
     }
 
-    private void setFileIsReceivedView(Update update) {
-        SendMessage sendMessage = messageUtils.generateSendMessageWithText(update, "Файл получен, идет обработки");
+    private void setFileIsReceivedView(Update update) { //метод отправки промежуточного ответа об обработке запроса
+        SendMessage sendMessage = messageUtils.generateSendMessageWithText(update, "Файл получен, идет обработка");
         setView(sendMessage);
     }
 
-    private void setUnsupportedMessageTypeView(Update update) { //метода для получения ответа о неподдерживаемом типе входящего сообщения
+    private void setUnsupportedMessageTypeView(Update update) { //метод для получения ответа о неподдерживаемом типе входящего сообщения
         SendMessage sendMessage = messageUtils.generateSendMessageWithText(update, "Неподдерживаемый тип сообщения");
         setView(sendMessage); //промежуточный метод для проброса ответа в телеграм бот
     }
 
-    public void setView(SendMessage sendMessage) {
+    public void setView(SendMessage sendMessage) { //промежуточный метод для передачи сообщения в телеграм бота
         telegramBot.sendAnswerMessage(sendMessage);
     }
 }

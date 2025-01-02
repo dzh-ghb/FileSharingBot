@@ -19,6 +19,6 @@ public class AnswerConsumerImpl implements AnswerConsumer {
     @Override
     @RabbitListener(queues = ANSWER_MESSAGE) //прослушивание очереди
     public void consume(SendMessage sendMessage) {
-        updateController.setView(sendMessage);
+        updateController.setView(sendMessage); //передача считанных данных в UpdateController
     }
 }

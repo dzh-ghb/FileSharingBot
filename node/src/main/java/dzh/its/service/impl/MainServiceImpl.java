@@ -27,12 +27,12 @@ public class MainServiceImpl implements MainService {
     public MainServiceImpl(RawDataDAO rawDataDAO, ProducerService producerService, AppUserDAO appUserDAO) {
         this.rawDataDAO = rawDataDAO;
         this.producerService = producerService;
-        this.appUserDAO = appUserDAO;
+        this.appUserDAO = appUserDAO; //внедрение bean через конструктор
     }
 
     @Override
     public void processTextMessage(Update update) { //обработка текстовых сообщений
-        saveRawData(update); //сохранения адпейта целиком
+        saveRawData(update); //сохранения апдейта в БД целиком
         AppUser appUser = findOrSaveAppUser(update); //сохранение или поиск юзера в БД
         UserState userState = appUser.getState(); //текущее состояние юзера
         String text = update.getMessage().getText(); //текст сообщения из входящего апдейта
@@ -83,14 +83,14 @@ public class MainServiceImpl implements MainService {
         sendAnswer(chatId, answer);
     }
 
-    private boolean isNotAllowToSendContent(Long chatId, AppUser appUser) {
+    private boolean isNotAllowToSendContent(Long chatId, AppUser appUser) { //метод обработки ситуации, когда загрузка контента запрещена
         UserState userState = appUser.getState();
 
-        if (!appUser.getIsActive()) { //проверка подтверждения активации учетной записи
+        if (!appUser.getIsActive()) { //проверка подтверждения активации учетной записи (если не активирован)
             String error = "Необходимо пройти процесс регистрации или активировать свою учетную запись для предоставления возможности загрузки контента";
             sendAnswer(chatId, error);
             return true;
-        } else if (!BASIC_STATE.equals(userState)) { //проверка текущего состояние юзера - загружать контент можно только в базовом состоянии
+        } else if (!BASIC_STATE.equals(userState)) { //проверка текущего состояние юзера - загружать контент можно только в базовом состоянии (если НЕ в базовом состоянии)
             String error = "Отмените текущую команду с помощью \"/cancel\" для отправки файлов";
             sendAnswer(chatId, error);
             return true;
@@ -124,16 +124,16 @@ public class MainServiceImpl implements MainService {
         }
     }
 
-    private String help() {
+    private String help() { //справка о доступных командах
         return "Список доступных команд:\n"
                 + "\"/cancel\" - отмена выполнения текущей команды\n"
                 + "\"/registration\" - регистрация пользователя";
     }
 
     private AppUser findOrSaveAppUser(Update update) { //поиск юзера в БД
-        User telegramUser = update.getMessage().getFrom();
+        User telegramUser = update.getMessage().getFrom(); //получение информации о юзере из апдейта
         AppUser persistentAppUser = appUserDAO.findAppUserByTelegramUserId(telegramUser.getId()); //поиск уже существующего юзера
-        if (persistentAppUser == null) {
+        if (persistentAppUser == null) { //сохранение нового юзера в БД, поле firstLoginDate генерируется автоматически
             AppUser transientAppUser = AppUser.builder()
                     .telegramUserId(telegramUser.getId())
                     .userName(telegramUser.getUserName())
@@ -145,13 +145,14 @@ public class MainServiceImpl implements MainService {
                     .build();
             return appUserDAO.save(transientAppUser); //сохранение нового юзера в БД и возвращение значения
         }
-        return persistentAppUser;
+        return persistentAppUser; //возвращение информации о существующем юзере
     }
 
-    private void saveRawData(Update update) { //создание объекта RawData
+    private void saveRawData(Update update) { //создание объекта RawData (сохранение данных в БД)
         RawData rawData = RawData.builder() //использование паттерна Builder
                 .event(update)
                 .build();
-        rawDataDAO.save(rawData); //метод автоматически создается Spring через JpaRepository
+        rawDataDAO.save(rawData); /*ВАЖНО: метод автоматически создается Spring через JpaRepository,
+        после сохранения возвращает обратно сохраненный объект с уже заполненным первичным ключом и привязкой объекта к сессии Hibernate*/
     }
 }

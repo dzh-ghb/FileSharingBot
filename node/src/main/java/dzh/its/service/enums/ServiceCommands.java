@@ -1,7 +1,7 @@
 package dzh.its.service.enums;
 
-public enum ServiceCommands {
-    HELP("/help"),
+public enum ServiceCommands { //хранение доступных сервисных команд
+    HELP("/help"), //все элементы - объекты этого класса - также можно добавлять поля, методы и конструкторы
     REGISTRATION("/registration"),
     CANCEL("/cancel"),
     START("/start");
@@ -17,7 +17,7 @@ public enum ServiceCommands {
         return cmd;
     }
 
-    public boolean equals(String cmd) {
+    public boolean equals(String cmd) { //сравнение двух команд
         return this.toString().equals(cmd);
     }
 }

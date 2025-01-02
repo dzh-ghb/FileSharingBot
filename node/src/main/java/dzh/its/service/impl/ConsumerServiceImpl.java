@@ -19,10 +19,10 @@ public class ConsumerServiceImpl implements ConsumerService {
     }
 
     @Override
-    @RabbitListener(queues = TEXT_MESSAGE_UPDATE) //прослушивание очереди
+    @RabbitListener(queues = TEXT_MESSAGE_UPDATE) //прослушивание очереди с текстовыми сообщениями из RabbitMQ
     public void consumeTextMessageUpdates(Update update) {
         log.debug("NODE: Получено текстовое сообщение");
-        mainService.processTextMessage(update); //передача апдейта в MainService
+        mainService.processTextMessage(update); //передача апдейта в MainService для дальнейшей обработки
     }
 
     @Override

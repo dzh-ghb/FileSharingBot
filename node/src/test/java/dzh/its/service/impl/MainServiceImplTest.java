@@ -12,13 +12,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 class MainServiceImplTest {
     @Autowired
     private RawDataDAO rawDataDAO;
 
+    //тест будет работать напрямую с БД
     @Test
     public void testSaveRawData() {
         Update update = new Update();
