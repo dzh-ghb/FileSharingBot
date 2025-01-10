@@ -3,6 +3,7 @@ package dzh.its.service.impl;
 import dzh.its.dao.AppUserDAO;
 import dzh.its.dao.RawDataDAO;
 import dzh.its.entity.AppDocument;
+import dzh.its.entity.AppPhoto;
 import dzh.its.entity.AppUser;
 import dzh.its.entity.RawData;
 import dzh.its.entity.enums.UserState;
@@ -71,7 +72,7 @@ public class MainServiceImpl implements MainService {
         }
 
         try {
-            AppDocument doc = fileService.processDoc(update.getMessage());
+            AppDocument doc = fileService.processDoc(update.getMessage()); //передача сообщения из апдейта в FileService
             //TODO: добавить генерацию ссылки для скачивания документа
             String answer = "Документ успешно загружен\nСсылка для скачивания: http://benzotest.ru/get-doc/???";
             sendAnswer(chatId, answer);
@@ -92,9 +93,16 @@ public class MainServiceImpl implements MainService {
             return;
         }
 
-        //TODO: добавить функционал по сохранению изображений
-        String answer = "Изображение успешно загружено\nСсылка для скачивания: http://benzotest.ru/get-photo/???";
-        sendAnswer(chatId, answer);
+        try {
+            AppPhoto photo = fileService.processPhoto(update.getMessage()); //передача сообщения из апдейта в FileService
+            //TODO: добавить генерацию ссылки для скачивания фото
+            String answer = "Фото успешно загружено\nСсылка для скачивания: http://benzotest.ru/get-photo/???";
+            sendAnswer(chatId, answer);
+        } catch (UploadFileException e) {
+            log.error(e);
+            String error = "Загрузка фото завершилась с ошибкой\nПовторите попытку позже";
+            sendAnswer(chatId, error);
+        }
     }
 
     private boolean isNotAllowToSendContent(Long chatId, AppUser appUser) { //метод обработки ситуации, когда загрузка контента запрещена
