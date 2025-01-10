@@ -2,11 +2,15 @@ package dzh.its.service.impl;
 
 import dzh.its.dao.AppUserDAO;
 import dzh.its.dao.RawDataDAO;
+import dzh.its.entity.AppDocument;
 import dzh.its.entity.AppUser;
 import dzh.its.entity.RawData;
 import dzh.its.entity.enums.UserState;
+import dzh.its.exceptions.UploadFileException;
+import dzh.its.service.FileService;
 import dzh.its.service.MainService;
 import dzh.its.service.ProducerService;
+import dzh.its.service.enums.ServiceCommand;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,19 +19,21 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import static dzh.its.entity.enums.UserState.BASIC_STATE;
 import static dzh.its.entity.enums.UserState.WAIT_FOR_EMAIL_STATE;
-import static dzh.its.service.enums.ServiceCommands.*;
+import static dzh.its.service.enums.ServiceCommand.*;
 
-@Service
 @Log4j
+@Service
 public class MainServiceImpl implements MainService {
     private final RawDataDAO rawDataDAO;
     private final ProducerService producerService;
     private final AppUserDAO appUserDAO;
+    private final FileService fileService;
 
-    public MainServiceImpl(RawDataDAO rawDataDAO, ProducerService producerService, AppUserDAO appUserDAO) {
-        this.rawDataDAO = rawDataDAO;
+    public MainServiceImpl(RawDataDAO rawDataDAO, ProducerService producerService, AppUserDAO appUserDAO, FileService fileService) {
+        this.rawDataDAO = rawDataDAO; //внедрение bean через конструктор
         this.producerService = producerService;
-        this.appUserDAO = appUserDAO; //внедрение bean через конструктор
+        this.appUserDAO = appUserDAO;
+        this.fileService = fileService;
     }
 
     @Override
@@ -38,7 +44,8 @@ public class MainServiceImpl implements MainService {
         String text = update.getMessage().getText(); //текст сообщения из входящего апдейта
         String output = ""; //переменная-заготовка для ответа
 
-        if (CANCEL.equals(text)) { //входящий текст содержит команду отмены
+        ServiceCommand serviceCommand = ServiceCommand.fromValue(text);
+        if (CANCEL.equals(serviceCommand)) { //входящий текст содержит команду отмены
             output = cancelProcess(appUser); //сброс состояния юзера в базовое
         } else if (BASIC_STATE.equals(userState)) { //текущее состояние юзера - базовое
             output = processServiceCommand(appUser, text); //переход в режим ожидания ввода сервисных команд
@@ -63,9 +70,16 @@ public class MainServiceImpl implements MainService {
             return;
         }
 
-        //TODO: добавить функционал по сохранению документов
-        String answer = "Документ успешно загружен. Ссылка для скачивания: http://benzotest.ru/get-doc/???";
-        sendAnswer(chatId, answer);
+        try {
+            AppDocument doc = fileService.processDoc(update.getMessage());
+            //TODO: добавить генерацию ссылки для скачивания документа
+            String answer = "Документ успешно загружен\nСсылка для скачивания: http://benzotest.ru/get-doc/???";
+            sendAnswer(chatId, answer);
+        } catch (UploadFileException e) {
+            log.error(e);
+            String error = "Загрузка файла завершилась с ошибкой\nПовторите попытку позже";
+            sendAnswer(chatId, error);
+        }
     }
 
     @Override
@@ -79,7 +93,7 @@ public class MainServiceImpl implements MainService {
         }
 
         //TODO: добавить функционал по сохранению изображений
-        String answer = "Документ успешно загружен. Ссылка для скачивания: http://benzotest.ru/get-photo/???";
+        String answer = "Изображение успешно загружено\nСсылка для скачивания: http://benzotest.ru/get-photo/???";
         sendAnswer(chatId, answer);
     }
 
@@ -112,12 +126,13 @@ public class MainServiceImpl implements MainService {
     }
 
     private String processServiceCommand(AppUser appUser, String cmd) {
-        if (REGISTRATION.equals(cmd)) { //входящая команда - команда регистрации
+        ServiceCommand serviceCommand = ServiceCommand.fromValue(cmd);
+        if (REGISTRATION.equals(serviceCommand)) { //входящая команда - команда регистрации
             //TODO: добавить регистрацию
             return "Временно недоступно";
-        } else if (HELP.equals(cmd)) { //-//- - команда получения справки
+        } else if (HELP.equals(serviceCommand)) { //-//- - команда получения справки
             return help(); //возврат списка доступных команд
-        } else if (START.equals(cmd)) { //-//- - команда начала работы
+        } else if (START.equals(serviceCommand)) { //-//- - команда начала работы
             return "Приветствую!\nЧтобы проверить список доступных команд введите \"/help\"";
         } else { //несуществующая команда
             return "Неизвестная команда. Чтобы проверить список доступных команд введите \"/help\"";

@@ -20,7 +20,7 @@
     </properties>
 
     <dependencies>
-        <!--зависимость с Spring Boot в dispatcher (для старта микросервиса в виде Spring Boot приложения -->
+        <!--зависимость с Spring Boot в node (для старта микросервиса в виде Spring Boot приложения)-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
+            <version>${postgresql.version}</version> <!--версия указана через переменную в блоке <properties>-->
         </dependency>
 
         <!--зависимость для сохранения в PostgreSQL данных типа JSONB-->
@@ -59,18 +59,18 @@
             <version>${hibernate.types.version}</version>
         </dependency>
 
-        <!--зависимость с библиотекой телеграма-->
+        <!--зависимость с библиотекой Telegram-->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-spring-boot-starter</artifactId>
-            <version>${telegrambot.starter.version}</version> <!--версия указана через переменную в блоке <properties>-->
+            <version>${telegrambot.starter.version}</version>
         </dependency>
 
         <!--подключение модуля common-rabbitmq-->
         <dependency>
             <groupId>dzh.its</groupId>
             <artifactId>common-rabbitmq</artifactId>
-            <version>1.0-SNAPSHOT</version> <!--версия указана через переменную в блоке <properties>-->
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <!--подключение модуля common-jpa-->

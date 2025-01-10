@@ -18,7 +18,7 @@
     </properties>
 
     <dependencies>
-        <!--зависимость с Spring Boot в dispatcher (для старта микросервиса в виде Spring Boot приложения -->
+        <!--зависимость с Spring Boot в dispatcher (для старта микросервиса в виде Spring Boot приложения)-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -30,17 +30,18 @@
             <artifactId>spring-boot-starter-amqp</artifactId>
         </dependency>
 
-        <!--зависимость с библиотекой телеграма-->
+        <!--зависимость с библиотекой Telegram-->
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-spring-boot-starter</artifactId>
-            <version>${telegrambot.starter.version}</version> <!--версия указана через переменную в блоке <properties>-->
+            <version>${telegrambot.starter.version}</version> <!--версия указана через переменную в родительском pom.xml проекта-->
         </dependency>
 
+        <!--подключение модуля common-rabbitmq-->
         <dependency>
             <groupId>dzh.its</groupId>
             <artifactId>common-rabbitmq</artifactId>
-            <version>1.0-SNAPSHOT</version> <!--версия указана через переменную в блоке <properties>-->
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

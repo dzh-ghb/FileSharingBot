@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "app_user") //название таблицы в БД
-public class AppUser { //класс-сущность для генерации в БД таблицы с информацией о юзерах
+public class AppUser { //класс-сущность (генерирует таблицу, если она еще не создана) - таблица в БД с информацией о юзерах
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id; //первичный ключ

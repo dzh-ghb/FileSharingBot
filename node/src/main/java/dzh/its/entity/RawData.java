@@ -17,7 +17,7 @@ import javax.persistence.*;
 @Entity //Spring - помеченный класс является сущностью, связанной с таблицей в БД
 @Table(name = "raw_data") //название таблицы в БД
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class) //hibernate-types-52 - поддержка JSONB
-public class RawData { //класс-сущность для генерации (если таблица еще не создана) в БД таблицы с информацией обо всех апдейтах (с генерацией первичных ключей через БД)
+public class RawData { //класс-сущность (генерирует таблицу, если она еще не создана) - таблица в БД с информацией обо всех апдейтах (с генерацией первичных ключей через БД)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //генерация значения первичных ключей через БД
     private Long id; //первичный ключ
