@@ -63,7 +63,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public AppPhoto processPhoto(Message telegramMessage) { //метод для обработки фото
         //TODO: добавление возможности обработки нескольких фото в одном апдейте
-        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(0); //получение фото из telegram-объекта (фото в сообщении м.б. несколько, поэтому выбираем элемент из списка)
+        int originalSize = telegramMessage.getPhoto().size() - 1; //индекс последнего (оригинального по размеру) фото в списке List<PhotoSize>
+        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(originalSize); //получение фото из telegram-объекта (хранит список фото разного размера, по индексу 0 получаем самое маленькое по размеру)
         String fileId = telegramPhoto.getFileId();
         ResponseEntity<String> response = getFilePath(fileId); //http-запрос к Telegram
         if (response.getStatusCode() == HttpStatus.OK) { //работа с объектом, содержащим ответные данные из Telegram
