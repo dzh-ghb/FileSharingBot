@@ -14,7 +14,7 @@ public class MailSenderServiceImpl implements MailSenderService {
     @Value("${spring.mail.username}")
     private String emailFrom; //адрес отправителя
     @Value("${service.activation.uri}")
-    private String activationServiceUri; //шаблон uri-ссылки для активации
+    private String activationServiceUri; //шаблон uri-ссылки для активации, которая будет отправляться в письме
 
     public MailSenderServiceImpl(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
@@ -37,7 +37,7 @@ public class MailSenderServiceImpl implements MailSenderService {
     }
 
     private String getActivationMailBody(String id) { //формирование текстового содержимого письма
-        String msg = String.format("Для завершения регистрации перейдите по ссылке:\n$s", activationServiceUri); //сообщение со ссылкой для активации
+        String msg = String.format("Для завершения регистрации перейдите по ссылке:\n%s", activationServiceUri); //сообщение со ссылкой для активации
         return msg.replace("{id}", id); //добавление идентификатора из входящего запроса
     }
 }
