@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/file")
 //в ответ вернется RawData - Spring не будет искать в ресурсах шаблон страницы (view), а сразу вернет массив байтов из body
 @RestController
-public class FileController { //для обработки http-запросов со стороны юзера
+public class FileController { //для обработки входящих http-запросов (запросы на получение данных)
     private final FileService fileService;
 
     public FileController(FileService fileService) {
