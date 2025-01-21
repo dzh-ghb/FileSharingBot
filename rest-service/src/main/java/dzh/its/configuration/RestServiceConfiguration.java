@@ -1,6 +1,6 @@
 package dzh.its.configuration;
 
-import dzh.its.CryptoTool;
+import dzh.its.utils.CryptoTool;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

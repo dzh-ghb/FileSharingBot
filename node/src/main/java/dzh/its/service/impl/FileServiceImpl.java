@@ -1,6 +1,5 @@
 package dzh.its.service.impl;
 
-import dzh.its.CryptoTool;
 import dzh.its.dao.AppDocumentDAO;
 import dzh.its.dao.AppPhotoDAO;
 import dzh.its.dao.BinaryContentDAO;
@@ -10,6 +9,7 @@ import dzh.its.entity.BinaryContent;
 import dzh.its.exceptions.UploadFileException;
 import dzh.its.service.FileService;
 import dzh.its.service.enums.LinkType;
+import dzh.its.utils.CryptoTool;
 import lombok.extern.log4j.Log4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;

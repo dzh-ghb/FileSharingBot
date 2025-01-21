@@ -1,4 +1,4 @@
-package dzh.its;
+package dzh.its.utils;
 
 import org.hashids.Hashids;
 

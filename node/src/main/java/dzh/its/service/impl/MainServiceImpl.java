@@ -8,6 +8,7 @@ import dzh.its.entity.AppUser;
 import dzh.its.entity.RawData;
 import dzh.its.entity.enums.UserState;
 import dzh.its.exceptions.UploadFileException;
+import dzh.its.service.AppUserService;
 import dzh.its.service.FileService;
 import dzh.its.service.MainService;
 import dzh.its.service.ProducerService;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+
+import java.util.Optional;
 
 import static dzh.its.entity.enums.UserState.BASIC_STATE;
 import static dzh.its.entity.enums.UserState.WAIT_FOR_EMAIL_STATE;
@@ -30,12 +33,14 @@ public class MainServiceImpl implements MainService {
     private final ProducerService producerService;
     private final AppUserDAO appUserDAO;
     private final FileService fileService;
+    private final AppUserService appUserService;
 
-    public MainServiceImpl(RawDataDAO rawDataDAO, ProducerService producerService, AppUserDAO appUserDAO, FileService fileService) {
+    public MainServiceImpl(RawDataDAO rawDataDAO, ProducerService producerService, AppUserDAO appUserDAO, FileService fileService, AppUserService appUserService) {
         this.rawDataDAO = rawDataDAO; //внедрение bean через конструктор
         this.producerService = producerService;
         this.appUserDAO = appUserDAO;
         this.fileService = fileService;
+        this.appUserService = appUserService;
     }
 
     @Override
@@ -52,7 +57,7 @@ public class MainServiceImpl implements MainService {
         } else if (BASIC_STATE.equals(userState)) { //текущее состояние юзера - базовое
             output = processServiceCommand(appUser, text); //переход в режим ожидания ввода сервисных команд
         } else if (WAIT_FOR_EMAIL_STATE.equals(userState)) { //текущее состояние юзера - ожидание ввода email
-            //TODO: реализация при добавлении mail-микросервиса
+            output = appUserService.setEmail(appUser, text); //обработка ввода электронной почты
         } else {
             log.error("Неизвестное состояние пользователя: " + userState);
             output = "Ошибка! Введите \"/cancel\" и попробуйте снова";
@@ -137,8 +142,7 @@ public class MainServiceImpl implements MainService {
     private String processServiceCommand(AppUser appUser, String cmd) {
         ServiceCommand serviceCommand = ServiceCommand.fromValue(cmd);
         if (REGISTRATION.equals(serviceCommand)) { //входящая команда - команда регистрации
-            //TODO: добавить регистрацию
-            return "Временно недоступно";
+            return appUserService.registerUser(appUser); //обработка запроса на регистрацию юзера
         } else if (HELP.equals(serviceCommand)) { //-//- - команда получения справки
             return help(); //возврат списка доступных команд
         } else if (START.equals(serviceCommand)) { //-//- - команда начала работы
@@ -156,20 +160,19 @@ public class MainServiceImpl implements MainService {
 
     private AppUser findOrSaveAppUser(Update update) { //поиск юзера в БД
         User telegramUser = update.getMessage().getFrom(); //получение информации о юзере из апдейта
-        AppUser persistentAppUser = appUserDAO.findAppUserByTelegramUserId(telegramUser.getId()); //поиск уже существующего юзера
-        if (persistentAppUser == null) { //сохранение нового юзера в БД, поле firstLoginDate генерируется автоматически
+        Optional<AppUser> optional = appUserDAO.findByTelegramUserId(telegramUser.getId()); //поиск уже существующего юзера
+        if (optional.isEmpty()) { //сохранение нового юзера в БД, поле firstLoginDate генерируется автоматически
             AppUser transientAppUser = AppUser.builder()
                     .telegramUserId(telegramUser.getId())
                     .userName(telegramUser.getUserName())
                     .lastName(telegramUser.getLastName())
                     .firstName(telegramUser.getFirstName())
-                    //TODO: изменить значение по умолчанию после добавления mail-сервиса и функционала регистрации юзера
-                    .isActive(true)
+                    .isActive(false) //дефолтное состояние - юзер не зарегистрирован/не активирован
                     .state(BASIC_STATE)
                     .build();
             return appUserDAO.save(transientAppUser); //сохранение нового юзера в БД и возвращение значения
         }
-        return persistentAppUser; //возвращение информации о существующем юзере
+        return optional.get(); //возвращение информации о существующем юзере
     }
 
     private void saveRawData(Update update) { //создание объекта RawData (сохранение данных в БД)
