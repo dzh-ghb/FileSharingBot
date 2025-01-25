@@ -37,3 +37,5 @@ build/
 ### Other ###
 application.properties
 logs/
+dispatcher/src/main/resources/Long Polling
+dispatcher/src/main/resources/Webhooks

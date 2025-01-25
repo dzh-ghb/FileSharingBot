@@ -12,12 +12,12 @@ import static dzh.its.model.RabbitQueue.*;
 
 @Component
 @Log4j
-public class UpdateController { //для распределения входящих сообщений (из бота)
+public class UpdateProcessor { //для распределения входящих сообщений (из бота)
     private TelegramBot telegramBot;
     private MessageUtils messageUtils;
     private UpdateProducer updateProducer;
 
-    public UpdateController(MessageUtils messageUtils, UpdateProducer updateProducer) {
+    public UpdateProcessor(MessageUtils messageUtils, UpdateProducer updateProducer) {
         this.messageUtils = messageUtils; //внедрение зависимости на MessageUtils
         this.updateProducer = updateProducer; //внедрение зависимости на UpdateProducer
     }

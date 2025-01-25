@@ -1,6 +1,6 @@
 package dzh.its.service.impl;
 
-import dzh.its.controller.UpdateController;
+import dzh.its.controller.UpdateProcessor;
 import dzh.its.service.AnswerConsumer;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -10,15 +10,15 @@ import static dzh.its.model.RabbitQueue.ANSWER_MESSAGE;
 
 @Service
 public class AnswerConsumerImpl implements AnswerConsumer {
-    private final UpdateController updateController;
+    private final UpdateProcessor updateProcessor;
 
-    public AnswerConsumerImpl(UpdateController updateController) {
-        this.updateController = updateController;
+    public AnswerConsumerImpl(UpdateProcessor updateProcessor) {
+        this.updateProcessor = updateProcessor;
     }
 
     @Override
     @RabbitListener(queues = ANSWER_MESSAGE) //прослушивание очереди
     public void consume(SendMessage sendMessage) {
-        updateController.setView(sendMessage); //передача считанных данных в UpdateController
+        updateProcessor.setView(sendMessage); //передача считанных данных в UpdateController
     }
 }
