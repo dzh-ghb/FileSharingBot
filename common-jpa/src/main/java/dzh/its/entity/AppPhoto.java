@@ -1,8 +1,18 @@
 package dzh.its.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 
 @Getter
 @Setter
@@ -10,8 +20,8 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "app_photo") //название таблицы в БД
+@Entity
 public class AppPhoto { //класс-сущность (генерирует таблицу, если она еще не создана) - таблица в БД с информацией о фото
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

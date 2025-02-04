@@ -14,8 +14,10 @@ import dzh.its.service.MainService;
 import dzh.its.service.ProducerService;
 import dzh.its.service.enums.LinkType;
 import dzh.its.service.enums.ServiceCommand;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -24,25 +26,26 @@ import java.util.Optional;
 
 import static dzh.its.entity.enums.UserState.BASIC_STATE;
 import static dzh.its.entity.enums.UserState.WAIT_FOR_EMAIL_STATE;
-import static dzh.its.service.enums.ServiceCommand.*;
+import static dzh.its.service.enums.ServiceCommand.CANCEL;
+import static dzh.its.service.enums.ServiceCommand.HELP;
+import static dzh.its.service.enums.ServiceCommand.REGISTRATION;
+import static dzh.its.service.enums.ServiceCommand.START;
 
 @Log4j
+@RequiredArgsConstructor
 @Service
 public class MainServiceImpl implements MainService {
     private final RawDataDAO rawDataDAO;
+
     private final ProducerService producerService;
+
     private final AppUserDAO appUserDAO;
+
     private final FileService fileService;
+
     private final AppUserService appUserService;
 
-    public MainServiceImpl(RawDataDAO rawDataDAO, ProducerService producerService, AppUserDAO appUserDAO, FileService fileService, AppUserService appUserService) {
-        this.rawDataDAO = rawDataDAO; //внедрение bean через конструктор
-        this.producerService = producerService;
-        this.appUserDAO = appUserDAO;
-        this.fileService = fileService;
-        this.appUserService = appUserService;
-    }
-
+    @Transactional
     @Override
     public void processTextMessage(Update update) { //обработка текстовых сообщений
         saveRawData(update); //сохранения апдейта в БД целиком
@@ -127,10 +130,14 @@ public class MainServiceImpl implements MainService {
     }
 
     private void sendAnswer(Long chatId, String output) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(output);
-        producerService.produceAnswer(sendMessage); //передача сообщения от узла
+        try {
+            SendMessage sendMessage = new SendMessage();
+            sendMessage.setChatId(chatId);
+            sendMessage.setText(output);
+            producerService.produceAnswer(sendMessage); //передача сообщения от узла
+        } catch (Exception e) {
+            log.error("Поступили некорректные данные: " + e); //если пришли некорректные данные (например, с ошибкой в JSON)
+        }
     }
 
     private String cancelProcess(AppUser appUser) {
@@ -160,8 +167,8 @@ public class MainServiceImpl implements MainService {
 
     private AppUser findOrSaveAppUser(Update update) { //поиск юзера в БД
         User telegramUser = update.getMessage().getFrom(); //получение информации о юзере из апдейта
-        Optional<AppUser> optional = appUserDAO.findByTelegramUserId(telegramUser.getId()); //поиск уже существующего юзера
-        if (optional.isEmpty()) { //сохранение нового юзера в БД, поле firstLoginDate генерируется автоматически
+        Optional<AppUser> appUserOpt = appUserDAO.findByTelegramUserId(telegramUser.getId()); //поиск уже существующего юзера
+        if (appUserOpt.isEmpty()) { //сохранение нового юзера в БД, поле firstLoginDate генерируется автоматически
             AppUser transientAppUser = AppUser.builder()
                     .telegramUserId(telegramUser.getId())
                     .userName(telegramUser.getUserName())
@@ -172,7 +179,7 @@ public class MainServiceImpl implements MainService {
                     .build();
             return appUserDAO.save(transientAppUser); //сохранение нового юзера в БД и возвращение значения
         }
-        return optional.get(); //возвращение информации о существующем юзере
+        return appUserOpt.get(); //возвращение информации о существующем юзере
     }
 
     private void saveRawData(Update update) { //создание объекта RawData (сохранение данных в БД)

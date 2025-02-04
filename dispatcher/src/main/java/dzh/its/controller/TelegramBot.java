@@ -1,5 +1,6 @@
 package dzh.its.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -12,28 +13,28 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
 
-@Component //аннотация, чтобы Spring создал бин и поместил его в контекст
 @Log4j //аннотация, автоматически под капотом добавляющая функциональность (logger), использование Lombok
+@RequiredArgsConstructor
+@Component //аннотация, чтобы Spring создал бин и поместил его в контекст
 public class TelegramBot extends TelegramWebhookBot { //класс для взаимодействия с API Telegram
     @Value("${bot.name}") //аннотация, устанавливающая значение переменной ниже из файла со свойствами
     private String botName;
+
     @Value("${bot.token}")
     private String botToken;
+
     @Value("${bot.uri}")
     private String botUri; //статический IP-адрес системы
 
-    private UpdateProcessor updateProcessor;
-
-    public TelegramBot(UpdateProcessor updateProcessor) {
-        this.updateProcessor = updateProcessor;
-    }
+    private final UpdateProcessor updateProcessor;
 
     @PostConstruct
     public void init() { //передача ссылки на бота в UpdateController
         updateProcessor.registerBot(this);
         try {
             SetWebhook setWebhook = SetWebhook.builder() //объект класса из библиотеки Telegram
-                    .url(botUri).build();
+                    .url(botUri)
+                    .build();
             this.setWebhook(setWebhook); //основная логика передачи IP-адреса на сервер Telegram выполняется под капотом
         } catch (TelegramApiException e) {
             log.error(e);

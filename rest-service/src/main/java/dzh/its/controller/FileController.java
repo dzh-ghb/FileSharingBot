@@ -4,6 +4,7 @@ import dzh.its.entity.AppDocument;
 import dzh.its.entity.AppPhoto;
 import dzh.its.entity.BinaryContent;
 import dzh.its.service.FileService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,16 +17,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 @Log4j
+@RequiredArgsConstructor
 //установка общей для всех методов в контроллере части uri-пути (во избежание дублирования кода)
 @RequestMapping("/file")
 //в ответ вернется RawData - Spring не будет искать в ресурсах шаблон страницы (view), а сразу вернет массив байтов из body
 @RestController
 public class FileController { //для обработки входящих http-запросов (GET-запросы для получения данных с сервера)
     private final FileService fileService;
-
-    public FileController(FileService fileService) {
-        this.fileService = fileService;
-    }
 
     //method - тип запроса, который будет отрабатываться, value - установка идентификатора ресурса для uri-пути
     @RequestMapping(method = RequestMethod.GET, value = "/get-doc")
@@ -57,7 +55,7 @@ public class FileController { //для обработки входящих http-
 
     @RequestMapping(method = RequestMethod.GET, value = "/get-photo")
     public void getPhoto(@RequestParam("id") String id, HttpServletResponse response) { //получение фото, метод идентичен getDoc()
-        //TODO: добавить ControllerAdvice для формирования badRequest
+        //TODO: добавить ControllerAdvice для формирования Bad Request
         AppPhoto photo = fileService.getPhoto(id);
         if (photo == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

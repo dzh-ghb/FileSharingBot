@@ -1,26 +1,26 @@
 package dzh.its.controller;
 
+import dzh.its.configuration.RabbitConfiguration;
 import dzh.its.service.UpdateProducer;
 import dzh.its.utils.MessageUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-import static dzh.its.model.RabbitQueue.*;
-
-@Component
 @Log4j
+@RequiredArgsConstructor
+@Component
 public class UpdateProcessor { //для распределения входящих сообщений (из бота)
     private TelegramBot telegramBot;
-    private MessageUtils messageUtils;
-    private UpdateProducer updateProducer;
 
-    public UpdateProcessor(MessageUtils messageUtils, UpdateProducer updateProducer) {
-        this.messageUtils = messageUtils; //внедрение зависимости на MessageUtils
-        this.updateProducer = updateProducer; //внедрение зависимости на UpdateProducer
-    }
+    private final MessageUtils messageUtils;
+
+    private final UpdateProducer updateProducer;
+
+    private final RabbitConfiguration rabbitConfiguration;
 
     public void registerBot(TelegramBot telegramBot) {
         this.telegramBot = telegramBot; //связывание UpdateController и Telegram Bot
@@ -53,16 +53,16 @@ public class UpdateProcessor { //для распределения входящ�
     }
 
     private void processTextMessage(Update update) {
-        updateProducer.produce(TEXT_MESSAGE_UPDATE, update); //передача апдейта с текстовым сообщением в соответствующую очередь
+        updateProducer.produce(rabbitConfiguration.getTextMessageUpdateQueue(), update); //передача апдейта с текстовым сообщением в соответствующую очередь
     }
 
     private void processDocMessage(Update update) {
-        updateProducer.produce(DOC_MESSAGE_UPDATE, update);
+        updateProducer.produce(rabbitConfiguration.getDocMessageUpdateQueue(), update);
         setFileIsReceivedView(update);
     }
 
     private void processPhotoMessage(Update update) {
-        updateProducer.produce(PHOTO_MESSAGE_UPDATE, update);
+        updateProducer.produce(rabbitConfiguration.getPhotoMessageUpdateQueue(), update);
         setFileIsReceivedView(update);
     }
 

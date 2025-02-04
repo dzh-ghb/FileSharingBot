@@ -10,10 +10,15 @@ import dzh.its.exceptions.UploadFileException;
 import dzh.its.service.FileService;
 import dzh.its.service.enums.LinkType;
 import dzh.its.utils.CryptoTool;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -26,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 @Log4j
+@RequiredArgsConstructor
 @Service
 public class FileServiceImpl implements FileService {
     @Value("${token}")
@@ -41,16 +47,12 @@ public class FileServiceImpl implements FileService {
     private String linkAddress;
 
     private final AppDocumentDAO appDocumentDAO;
-    private final AppPhotoDAO appPhotoDAO;
-    private final BinaryContentDAO binaryContentDAO;
-    private final CryptoTool cryptoTool;
 
-    public FileServiceImpl(AppDocumentDAO appDocumentDAO, AppPhotoDAO appPhotoDAO, BinaryContentDAO binaryContentDAO, CryptoTool cryptoTool) {
-        this.appDocumentDAO = appDocumentDAO;
-        this.appPhotoDAO = appPhotoDAO;
-        this.binaryContentDAO = binaryContentDAO;
-        this.cryptoTool = cryptoTool;
-    }
+    private final AppPhotoDAO appPhotoDAO;
+
+    private final BinaryContentDAO binaryContentDAO;
+
+    private final CryptoTool cryptoTool;
 
     @Override
     public AppDocument processDoc(Message telegramMessage) { //метод для обработки файлов
@@ -70,8 +72,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public AppPhoto processPhoto(Message telegramMessage) { //метод для обработки фото
         //TODO: добавление возможности обработки нескольких фото в одном апдейте
-        int originalSizeIndex = telegramMessage.getPhoto().size() - 1; //индекс последнего (оригинального по размеру) фото в списке List<PhotoSize>
-        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(originalSizeIndex); //получение фото из telegram-объекта (хранит список фото разного размера, по индексу 0 получаем самое маленькое по размеру)
+        int photoIndex = telegramMessage.getPhoto().size() - 1; //индекс последнего (оригинального по размеру) фото в списке List<PhotoSize>
+        PhotoSize telegramPhoto = telegramMessage.getPhoto().get(photoIndex); //получение фото из telegram-объекта (хранит список фото разного размера, по индексу 0 получаем самое маленькое по размеру)
         String fileId = telegramPhoto.getFileId();
         ResponseEntity<String> response = getFilePath(fileId); //http-запрос к Telegram
         if (response.getStatusCode() == HttpStatus.OK) { //работа с объектом, содержащим ответные данные из Telegram

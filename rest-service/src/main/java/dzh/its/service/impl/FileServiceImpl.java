@@ -6,22 +6,19 @@ import dzh.its.entity.AppDocument;
 import dzh.its.entity.AppPhoto;
 import dzh.its.service.FileService;
 import dzh.its.utils.CryptoTool;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Service;
 
 @Log4j //подключение логирования
+@RequiredArgsConstructor
 @Service //создание из класса Spring-bean
 public class FileServiceImpl implements FileService {
     private final AppDocumentDAO appDocumentDAO;
-    private final AppPhotoDAO appPhotoDAO;
-    private final CryptoTool cryptoTool;
 
-    //подключение бинов, необходимых для работы с БД
-    public FileServiceImpl(AppDocumentDAO appDocumentDAO, AppPhotoDAO appPhotoDAO, CryptoTool cryptoTool) {
-        this.appDocumentDAO = appDocumentDAO;
-        this.appPhotoDAO = appPhotoDAO;
-        this.cryptoTool = cryptoTool;
-    }
+    private final AppPhotoDAO appPhotoDAO;
+
+    private final CryptoTool cryptoTool;
 
     @Override
     public AppDocument getDocument(String hash) { //получения объекта документа из БД по идентификатору

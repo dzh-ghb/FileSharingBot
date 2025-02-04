@@ -1,10 +1,21 @@
 package dzh.its.entity;
 
 import dzh.its.entity.enums.UserState;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Getter
@@ -13,8 +24,8 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
 @Table(name = "app_user") //название таблицы в БД
+@Entity
 public class AppUser { //класс-сущность (генерирует таблицу, если она еще не создана) - таблица в БД с информацией о юзерах
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +37,9 @@ public class AppUser { //класс-сущность (генерирует та�
     private LocalDateTime firstLoginDate; //дата первого подключения к боту
 
     private String userName; //информация из telegram-объекта User - никнейм юзера
+
     private String lastName; //фамилия юзера
+
     private String firstName; //имя юзера
 
     private String email; //указанная юзером электронная почта

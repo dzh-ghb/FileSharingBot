@@ -4,19 +4,17 @@ import dzh.its.dao.AppUserDAO;
 import dzh.its.entity.AppUser;
 import dzh.its.service.UserActivationService;
 import dzh.its.utils.CryptoTool;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Service
 public class UserActivationServiceImpl implements UserActivationService {
     private final AppUserDAO appUserDAO;
-    private final CryptoTool cryptoTool;
 
-    public UserActivationServiceImpl(AppUserDAO appUserDAO, CryptoTool cryptoTool) {
-        this.appUserDAO = appUserDAO;
-        this.cryptoTool = cryptoTool;
-    }
+    private final CryptoTool cryptoTool;
 
     @Override
     public boolean activation(String cryptoUserId) { //активация юзера в БД после поступления запроса
