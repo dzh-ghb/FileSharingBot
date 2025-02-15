@@ -35,6 +35,7 @@ build/
 .DS_Store
 
 ### Other ###
+.env
 application.yaml
 logs/
 dispatcher/src/main/resources/Long Polling

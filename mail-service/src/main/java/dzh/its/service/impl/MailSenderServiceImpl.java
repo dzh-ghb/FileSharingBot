@@ -3,11 +3,13 @@ package dzh.its.service.impl;
 import dzh.its.dto.MailParams;
 import dzh.its.service.MailSenderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+@Log4j
 @RequiredArgsConstructor
 @Service
 public class MailSenderServiceImpl implements MailSenderService {
@@ -24,6 +26,7 @@ public class MailSenderServiceImpl implements MailSenderService {
         String subject = "Активация учетной записи"; //тема письма
         String messageBody = getActivationMailBody(mailParams.getId()); //тело - текст письма
         String emailTo = mailParams.getEmailTo(); //адрес почты получателя (из объекта MailParams)
+        log.debug(String.format("Отправка электронного письма на почту [%s]", emailTo));
 
         //сборка объекта для отправки письма
         SimpleMailMessage mailMessage = new SimpleMailMessage();
@@ -36,7 +39,7 @@ public class MailSenderServiceImpl implements MailSenderService {
     }
 
     private String getActivationMailBody(String id) { //формирование текстового содержимого письма
-        String msg = String.format("Для завершения регистрации перейдите по ссылке:\n%s", activationServiceUri); //сообщение со ссылкой для активации
+        String msg = String.format("Для завершения процесса активации учетной записи перейдите по ссылке:\n%s", activationServiceUri); //сообщение со ссылкой для активации
         return msg.replace("{id}", id); //добавление идентификатора из входящего запроса
     }
 }

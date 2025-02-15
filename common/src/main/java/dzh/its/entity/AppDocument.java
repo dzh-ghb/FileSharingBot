@@ -2,10 +2,10 @@ package dzh.its.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,10 +13,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import java.util.Objects;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "id")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -37,4 +37,17 @@ public class AppDocument { //класс-сущность (генерирует �
     private String mimeType; //формат файла
 
     private Long fileSize; //размер файла
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        AppDocument that = (AppDocument) o;
+        return telegramFileId != null && Objects.equals(telegramFileId, that.telegramFileId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

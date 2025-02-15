@@ -1,12 +1,12 @@
 package dzh.its.entity;
 
-import dzh.its.entity.enums.UserState;
+import dzh.its.enums.UserState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.Entity;
@@ -17,10 +17,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
-@EqualsAndHashCode(exclude = "id")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -48,4 +48,17 @@ public class AppUser { //класс-сущность (генерирует та�
 
     @Enumerated(EnumType.STRING) //указание для Spring Data о том, как Enum будет транслироваться в БД
     private UserState state; //состояние юзера
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        AppUser appUser = (AppUser) o;
+        return telegramUserId != null && Objects.equals(telegramUserId, appUser.telegramUserId);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

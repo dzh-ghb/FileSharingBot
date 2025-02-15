@@ -1,6 +1,6 @@
 package dzh.its.configuration;
 
-import dzh.its.utils.CryptoTool;
+import org.hashids.Hashids;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,8 @@ public class RestServiceConfiguration { //подключение CryptoTool в �
 
     //возвращение объекта CryptoTool, который Spring преобразует в bean
     @Bean
-    public CryptoTool getCryptoTool() {
-        return new CryptoTool(salt);
+    public Hashids getHashids() {
+        var minHashLength = 10;
+        return new Hashids(salt, minHashLength);
     }
 }

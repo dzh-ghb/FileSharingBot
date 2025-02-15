@@ -17,7 +17,10 @@ public class UpdateProducerImpl implements UpdateProducer {
 
     @Override
     public void produce(String rabbitQueue, Update update) {
-        log.debug(update.getMessage().getText());
+        Long chatId = update.getMessage().getChatId();
+        String userName = update.getMessage().getChat().getUserName();
+        String msgText = update.getMessage().getText();
+        log.debug(String.format("Сообщение от %s [chat-id: %s]: %s", userName, chatId, msgText));
         rabbitTemplate.convertAndSend(rabbitQueue, update); //передача апдейта в брокер сообщений
     }
 }

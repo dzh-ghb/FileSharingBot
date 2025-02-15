@@ -18,21 +18,27 @@ public class ConsumerServiceImpl implements ConsumerService {
     @RabbitListener(queues = "${spring.rabbitmq.queues.text-message-update}")
     //прослушивание очереди с текстовыми сообщениями из RabbitMQ
     public void consumeTextMessageUpdates(Update update) {
-        log.debug("NODE: Получено текстовое сообщение");
+        Long chatId = update.getMessage().getChatId();
+        String userName = update.getMessage().getChat().getUserName();
+        log.debug(String.format("Получено текстовое сообщение от %s [chat-id: %s]", userName, chatId));
         mainService.processTextMessage(update); //передача апдейта в MainService для дальнейшей обработки
     }
 
     @Override
     @RabbitListener(queues = "${spring.rabbitmq.queues.doc-message-update}")
     public void consumeDocMessageUpdates(Update update) {
-        log.debug("NODE: Получен документ");
+        Long chatId = update.getMessage().getChatId();
+        String userName = update.getMessage().getChat().getUserName();
+        log.debug(String.format("Получен документ от %s [chat-id: %s]", userName, chatId));
         mainService.processDocMessage(update);
     }
 
     @Override
     @RabbitListener(queues = "${spring.rabbitmq.queues.photo-message-update}")
     public void consumePhotoMessageUpdates(Update update) {
-        log.debug("NODE: Получено изображение");
+        Long chatId = update.getMessage().getChatId();
+        String userName = update.getMessage().getChat().getUserName();
+        log.debug(String.format("Получено изображение от %s [chat-id: %s]", userName, chatId));
         mainService.processPhotoMessage(update);
     }
 }

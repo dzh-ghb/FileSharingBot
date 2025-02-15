@@ -8,7 +8,5 @@ import java.util.Optional;
 public interface AppUserDAO extends JpaRepository<AppUser, Long> { //интерфейс для работы с данными из БД
     Optional<AppUser> findByTelegramUserId(Long id); //декларативный метод для поиска юзера по идентификатору TelegramUserId (реализация "под капотом" через Spring)
 
-    Optional<AppUser> findById(Long id); //поиск юзера по id
-
     Optional<AppUser> findByEmail(String email); //поиск юзера по электронной почте
 }

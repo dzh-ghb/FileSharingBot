@@ -4,9 +4,9 @@ import dzh.its.dao.AppUserDAO;
 import dzh.its.dto.MailParams;
 import dzh.its.entity.AppUser;
 import dzh.its.service.AppUserService;
-import dzh.its.utils.CryptoTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.hashids.Hashids;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -15,8 +15,8 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.util.Optional;
 
-import static dzh.its.entity.enums.UserState.BASIC_STATE;
-import static dzh.its.entity.enums.UserState.WAIT_FOR_EMAIL_STATE;
+import static dzh.its.enums.UserState.BASIC_STATE;
+import static dzh.its.enums.UserState.WAIT_FOR_EMAIL_STATE;
 
 @Log4j
 @RequiredArgsConstructor
@@ -24,7 +24,7 @@ import static dzh.its.entity.enums.UserState.WAIT_FOR_EMAIL_STATE;
 public class AppUserServiceImpl implements AppUserService {
     private final AppUserDAO appUserDAO;
 
-    private final CryptoTool cryptoTool;
+    private final Hashids hashids;
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -34,14 +34,14 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public String registerUser(AppUser appUser) { //обработка запроса на регистрацию юзера
         if (appUser.getIsActive()) { //если юзер уже активирован
-            return "Вы уже зарегистрированы!";
+            return "Учетная запись уже активирована";
         } else if (appUser.getEmail() != null) { //если юзер не активирован, но почта была указана ранее
-            return "Письмо для подтверждения регистрации было отправлено Вам на почту ранее\n" +
-                    "Для завершения регистрации перейдите по ссылке в письме";
+            return "Письмо для подтверждения активации было отправлено на почту ранее\n" +
+                    "Для завершения активации перейдите по ссылке из письма";
         }
         appUser.setState(WAIT_FOR_EMAIL_STATE); //иначе - перевод юзера в режим ввода электронной почты
         appUserDAO.save(appUser); //сохранение объекта в БД
-        return "Для продолжения регистрации введите адрес Вашей электронной почты";
+        return "Для продолжения активации введите адрес электронной почты";
     }
 
     @Override
@@ -50,7 +50,8 @@ public class AppUserServiceImpl implements AppUserService {
             InternetAddress emailAddr = new InternetAddress(email);
             emailAddr.validate(); //метод для валидации электронной почты
         } catch (AddressException e) { //если адрес невалидный
-            return "Введите корректный адрес электронной почты\nДля отмены команды введите \"/cancel\"";
+            log.error("Введен невалидный адрес электронной почты: " + e);
+            return "Введен невалидный адрес электронной почты, укажите корректный адрес\nДля отмены команды введите /cancel";
         }
         //электронная почта валидная - поиск в БД юзера с указанной почтой
         Optional<AppUser> appUserOpt = appUserDAO.findByEmail(email);
@@ -60,13 +61,15 @@ public class AppUserServiceImpl implements AppUserService {
             appUser = appUserDAO.save(appUser); //сохранение данных в БД
 
             //формирование и отправка запроса к mail-сервису со ссылкой для активации
-            String cryptoUserId = cryptoTool.hashOf(appUser.getId()); //шифрование идентификатора юзера
+            String cryptoUserId = hashids.encode(appUser.getId()); //шифрование идентификатора юзера
             sendRegistrationMail(cryptoUserId, email);
-            return "Письмо для подтверждения регистрации отправлено Вам на почту\n" +
-                    "Для завершения регистрации перейдите по ссылке в письме"; //ответа при успешной отправке запроса
+            log.error("Отправка письма для подтверждения активации пользователя");
+            return "Письмо для подтверждения активации отправлено на почту\n" +
+                    "Для завершения активации перейдите по ссылке из письма"; //ответа при успешной отправке запроса
         } else { //если адрес уже используется в БД
+            log.error("Введен использующийся адрес электронной почты");
             return "Этот адрес электронной почты уже используется, введите другой email\n" +
-                    "Для отмены команды введите \"/cancel\"";
+                    "Для отмены команды введите /cancel";
         }
     }
 

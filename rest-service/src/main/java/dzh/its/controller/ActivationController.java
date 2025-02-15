@@ -19,7 +19,7 @@ public class ActivationController { //для обработки запросов
     public ResponseEntity<?> activation(@RequestParam("id") String id) { //принимает GET-запрос и GET-параметр id (зашифрованный)
         boolean res = userActivationService.activation(id); //получение результата активации юзера в БД
         if (!res) { //если пользователь не активирован
-            return ResponseEntity.internalServerError().build(); //считаем, что ошибка на стороне сервера (по факту ошибка могла быть в запросе)
+            return ResponseEntity.badRequest().body("Неверная ссылка"); //считаем, что ошибка на стороне сервера (по факту ошибка могла быть в запросе)
         }
         return ResponseEntity.ok().body("Регистрация успешно завершена"); //если пользователь активирован (сообщение отобразиться в браузере)
     }

@@ -5,44 +5,31 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
+        <!--зависимость от стартового пакета Spring Boot-->
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.7.5</version>
         <relativePath/>
     </parent>
 
+    <!--common-модуль - общая библиотека, которая будет импортироваться в микросервисы в виде зависимости-->
     <groupId>dzh.its</groupId>
-    <artifactId>mail-service</artifactId>
+    <artifactId>common</artifactId>
     <version>0.0.1</version>
-    <name>mail-service</name>
-    <description>mail-service</description>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.plugin.version>3.5.1</maven.compiler.plugin.version>
         <lombok.version>1.18.22</lombok.version>
-        <log4j.version>1.2.17</log4j.version>
-        <dzh.its.common.version>0.0.1</dzh.its.common.version>
     </properties>
 
     <dependencies>
-        <!--зависимость для возможности приема http-запросов-->
+        <!--зависимость для доступа к БД с помощью JPA-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-
-        <!--зависимость для подключения к почтовому сервису и отправки электронных писем-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-mail</artifactId>
-        </dependency>
-
-        <!--зависимость для интеграции с RabbitMQ-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-amqp</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -51,27 +38,11 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-
-        <!--подключение модуля common для доступа к dto-->
-        <dependency>
-            <groupId>dzh.its</groupId>
-            <artifactId>common</artifactId>
-            <version>${dzh.its.common.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+            <!--плагин для сборки приложения внутри контейнера-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

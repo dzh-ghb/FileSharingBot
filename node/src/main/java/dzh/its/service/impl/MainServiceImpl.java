@@ -6,7 +6,7 @@ import dzh.its.entity.AppDocument;
 import dzh.its.entity.AppPhoto;
 import dzh.its.entity.AppUser;
 import dzh.its.entity.RawData;
-import dzh.its.entity.enums.UserState;
+import dzh.its.enums.UserState;
 import dzh.its.exceptions.UploadFileException;
 import dzh.its.service.AppUserService;
 import dzh.its.service.FileService;
@@ -24,8 +24,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.Optional;
 
-import static dzh.its.entity.enums.UserState.BASIC_STATE;
-import static dzh.its.entity.enums.UserState.WAIT_FOR_EMAIL_STATE;
+import static dzh.its.enums.UserState.BASIC_STATE;
+import static dzh.its.enums.UserState.WAIT_FOR_EMAIL_STATE;
 import static dzh.its.service.enums.ServiceCommand.CANCEL;
 import static dzh.its.service.enums.ServiceCommand.HELP;
 import static dzh.its.service.enums.ServiceCommand.REGISTRATION;
@@ -62,8 +62,10 @@ public class MainServiceImpl implements MainService {
         } else if (WAIT_FOR_EMAIL_STATE.equals(userState)) { //текущее состояние юзера - ожидание ввода email
             output = appUserService.setEmail(appUser, text); //обработка ввода электронной почты
         } else {
-            log.error("Неизвестное состояние пользователя: " + userState);
-            output = "Ошибка! Введите \"/cancel\" и попробуйте снова";
+            Long userId = appUser.getId();
+            String userName = appUser.getUserName();
+            log.error(String.format("Неизвестное состояние пользователя %s [user-id = %s]: %s", userName, userId, userState));
+            output = "Ошибка\nВведите /cancel и попробуйте снова";
         }
 
         Long chatId = update.getMessage().getChatId();
@@ -83,11 +85,11 @@ public class MainServiceImpl implements MainService {
         try {
             AppDocument doc = fileService.processDoc(update.getMessage()); //передача сообщения из апдейта в FileService
             String link = fileService.generateLink(doc.getId(), LinkType.GET_DOC); //метод генерации ссылки на документ
-            String answer = "Документ успешно загружен\nСсылка для скачивания: " + link;
+            String answer = "Документ успешно загружен\nСсылка для скачивания:\n" + link;
             sendAnswer(chatId, answer);
         } catch (UploadFileException e) {
-            log.error(e);
-            String error = "Загрузка файла завершилась с ошибкой\nПовторите попытку позже";
+            log.error("Загрузка документа завершилась с ошибкой: " + e);
+            String error = "Загрузка документа завершилась с ошибкой\nПовторите попытку позже";
             sendAnswer(chatId, error);
         }
     }
@@ -105,11 +107,11 @@ public class MainServiceImpl implements MainService {
         try {
             AppPhoto photo = fileService.processPhoto(update.getMessage()); //передача сообщения из апдейта в FileService
             String link = fileService.generateLink(photo.getId(), LinkType.GET_PHOTO); //метод генерации ссылки на фото
-            String answer = "Фото успешно загружено\nСсылка для скачивания: " + link;
+            String answer = "Изображение успешно загружено\nСсылка для скачивания:\n" + link;
             sendAnswer(chatId, answer);
         } catch (UploadFileException e) {
-            log.error(e);
-            String error = "Загрузка фото завершилась с ошибкой\nПовторите попытку позже";
+            log.error("Загрузка изображения завершилось с ошибкой: " + e);
+            String error = "Загрузка изображения завершилось с ошибкой\nПовторите попытку позже";
             sendAnswer(chatId, error);
         }
     }
@@ -118,11 +120,11 @@ public class MainServiceImpl implements MainService {
         UserState userState = appUser.getState();
 
         if (!appUser.getIsActive()) { //проверка подтверждения активации учетной записи (если не активирован)
-            String error = "Необходимо пройти процесс регистрации или активировать свою учетную запись для предоставления возможности загрузки контента";
+            String error = "Необходимо пройти процесс активации учетной записи для предоставления возможности загрузки контента";
             sendAnswer(chatId, error);
             return true;
         } else if (!BASIC_STATE.equals(userState)) { //проверка текущего состояние юзера - загружать контент можно только в базовом состоянии (если НЕ в базовом состоянии)
-            String error = "Отмените текущую команду с помощью \"/cancel\" для отправки файлов";
+            String error = "Отмените текущую команду с помощью /cancel для отправки файлов";
             sendAnswer(chatId, error);
             return true;
         }
@@ -153,16 +155,16 @@ public class MainServiceImpl implements MainService {
         } else if (HELP.equals(serviceCommand)) { //-//- - команда получения справки
             return help(); //возврат списка доступных команд
         } else if (START.equals(serviceCommand)) { //-//- - команда начала работы
-            return "Приветствую!\nЧтобы проверить список доступных команд введите \"/help\"";
+            return "Приветствую!\nЧтобы проверить список доступных команд введите /help";
         } else { //несуществующая команда
-            return "Неизвестная команда. Чтобы проверить список доступных команд введите \"/help\"";
+            return "Неизвестная команда. Чтобы проверить список доступных команд введите /help";
         }
     }
 
     private String help() { //справка о доступных командах
         return "Список доступных команд:\n"
-                + "\"/cancel\" - отмена выполнения текущей команды\n"
-                + "\"/registration\" - регистрация пользователя";
+                + "/registration - регистрация пользователя\n"
+                + "/cancel - отмена выполнения текущей команды";
     }
 
     private AppUser findOrSaveAppUser(Update update) { //поиск юзера в БД

@@ -9,9 +9,9 @@ import dzh.its.entity.BinaryContent;
 import dzh.its.exceptions.UploadFileException;
 import dzh.its.service.FileService;
 import dzh.its.service.enums.LinkType;
-import dzh.its.utils.CryptoTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.hashids.Hashids;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -52,7 +52,7 @@ public class FileServiceImpl implements FileService {
 
     private final BinaryContentDAO binaryContentDAO;
 
-    private final CryptoTool cryptoTool;
+    private final Hashids hashids;
 
     @Override
     public AppDocument processDoc(Message telegramMessage) { //метод для обработки файлов
@@ -88,7 +88,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String generateLink(Long docId, LinkType linkType) { //метод генерации ссылок
-        String hash = cryptoTool.hashOf(docId); //получение хеша
+        String hash = hashids.encode(docId); //получение хеша
         return "http://" + linkAddress + "/" + linkType + "?id=" + hash; //вставка хеша в ссылку
     }
 
