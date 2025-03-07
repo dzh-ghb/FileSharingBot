@@ -4,7 +4,7 @@
 ENV_FILE="./.env"
 
 # Перевод контекста выполнения скрипта в корневую папку проекта
-pushd mnt/d/DZHITS/Programming/_main/_Projects/FileSharingBot || exit
+pushd ~/FileSharingBot/ || exit
 
 # Переключение на ветку main
 git checkout main

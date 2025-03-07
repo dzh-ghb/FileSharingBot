@@ -19,14 +19,14 @@ import java.io.IOException;
 @Log4j
 @RequiredArgsConstructor
 //установка общей для всех методов в контроллере части uri-пути (во избежание дублирования кода)
-@RequestMapping("/file")
+@RequestMapping("/api")
 //в ответ вернется RawData - Spring не будет искать в ресурсах шаблон страницы (view), а сразу вернет массив байтов из body
 @RestController
 public class FileController { //для обработки входящих http-запросов (GET-запросы для получения данных с сервера)
     private final FileService fileService;
 
     //method - тип запроса, который будет отрабатываться, value - установка идентификатора ресурса для uri-пути
-    @RequestMapping(method = RequestMethod.GET, value = "/get-doc")
+    @RequestMapping(method = RequestMethod.GET, value = "/file/get-doc")
     public void getDoc(@RequestParam("id") String id, HttpServletResponse response) { //получение документа, @RequestParam("id") - описывает ожидаемые параметры входящего GET-запроса
         //вместо формирования ответа через ResponseEntity<?> (Spring-класс для удобной сборки http-ответа), ответ формируется вручную через перехваченный объект HttpServletResponse
         //TODO: добавить ControllerAdvice для формирования Bad Request (для обработки внутренних ошибок и формирования детализированных ответов юзеру)
@@ -53,7 +53,7 @@ public class FileController { //для обработки входящих http-
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/get-photo")
+    @RequestMapping(method = RequestMethod.GET, value = "/file/get-photo")
     public void getPhoto(@RequestParam("id") String id, HttpServletResponse response) { //получение фото, метод идентичен getDoc()
         //TODO: добавить ControllerAdvice для формирования Bad Request
         AppPhoto photo = fileService.getPhoto(id);

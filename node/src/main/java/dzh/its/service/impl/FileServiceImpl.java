@@ -89,7 +89,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public String generateLink(Long docId, LinkType linkType) { //метод генерации ссылок
         String hash = hashids.encode(docId); //получение хеша
-        return "http://" + linkAddress + "/" + linkType + "?id=" + hash; //вставка хеша в ссылку
+        return linkAddress + "/api/" + linkType + "?id=" + hash; //вставка хеша в ссылку
     }
 
     //метод для получения объекта persistentBinaryContent

@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 //установка общей для всех методов в контроллере части uri-пути
-@RequestMapping("/user")
+@RequestMapping("/api")
 @RestController
 public class ActivationController { //для обработки запросов по ссылке из письма
     private final UserActivationService userActivationService;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/activation")
+    @RequestMapping(method = RequestMethod.GET, value = "/user/activation")
     public ResponseEntity<?> activation(@RequestParam("id") String id) { //принимает GET-запрос и GET-параметр id (зашифрованный)
         boolean res = userActivationService.activation(id); //получение результата активации юзера в БД
         if (!res) { //если пользователь не активирован
